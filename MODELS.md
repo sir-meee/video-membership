@@ -1,3 +1,8 @@
+### hosting
+Dokku (Heroku alternative)
+coolify (Vercel alternative)
+
+
 # Video membership project
 
 User
@@ -6,7 +11,7 @@ User
 
 Video
     -vimeo_id
-    
+
 Content
     -content: video
     -data:

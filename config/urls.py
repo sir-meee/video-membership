@@ -19,6 +19,10 @@ urlpatterns = [
     ),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
+
+    #apps
+    path("courses/", include("djvideomem.content.urls", namespace="content")),
+
     # User management
     path("users/", include("djvideomem.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),

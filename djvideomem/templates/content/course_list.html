@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="max-w-md mx-auto">
+        {% for course in object_list %}
+            <p>{{ course.name }}</p>
+        {% endfor %}
+    </div>
+{% endblock content %}
