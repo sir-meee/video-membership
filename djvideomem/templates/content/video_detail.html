@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <section class="text-gray-600 body-font">
+    <div class="container px-5 py-24 mx-auto">
+        <div class="flex flex-wrap w-full mb-6">
+        <div class="lg:w-1/2 w-full mb-6 lg:mb-0">
+            <h1 class="sm:text-3xl text-2xl font-medium title-font mb-2 text-gray-900">{{ course.name }}</h1>
+            <div class="h-1 w-20 bg-indigo-500 rounded"></div>
+        </div>
+        </div>
+        <div class="flex flex-wrap -m-4">
+        {% for video in video.course.videos.all%}
+            <div class="lg:w-1/2 w-full p-4">
+                <img class="rounded w-full object-cover object-center mb-6" src="" alt="">
+            </div>
+        {% endfor %}
+            <div class="lg:w-1/2 w-full p-4">
+                <h2 class="text-lg text-gray-900 font-medium title-font mb-4">Details</h2>
+                <p class="leading-relaxed text-base">{{ video.title }}</p>
+                <p class="leading-relaxed text-base">{{ course.content }}</p>
+                <p class="leading-relaxed text-base">{{ course.instructor }}</p>
+            </div>
+        </div>
+    </div>
+    </section>
+
+{% endblock content %}

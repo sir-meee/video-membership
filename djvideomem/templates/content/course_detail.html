@@ -2,27 +2,30 @@
 
 {% block content %}
     <section class="text-gray-600 body-font">
-    <div class="container px-5 py-24 mx-auto">
-        <div class="flex flex-wrap w-full mb-6">
-        <div class="lg:w-1/2 w-full mb-6 lg:mb-0">
-            <h1 class="sm:text-3xl text-2xl font-medium title-font mb-2 text-gray-900">{{ course.name }}</h1>
-            <div class="h-1 w-20 bg-indigo-500 rounded"></div>
+        <div class="container px-5 py-24 mx-auto">
+            <!-- Course Details -->
+            <div class="flex flex-wrap w-full mb-6">
+                <div class="lg:w-1/2 w-full mb-6 lg:mb-0">
+                    <h1 class="sm:text-3xl text-2xl font-medium title-font mb-2 text-gray-900">{{ course.name }}</h1>
+                    <div class="h-1 w-20 bg-indigo-500 rounded"></div>
+                    <p class="leading-relaxed text-base mt-4">{{ course.description }}</p>
+                </div>
+            </div>
+            
+            <!-- Videos List -->
+            <div class="flex flex-wrap -m-4">
+                {% for video in course.videos.all %}
+                    <a href="{{ video.get_absolute_url }}">
+                        <div class="lg:w-1/2 w-full p-4">
+                            <h2 class="text-lg text-gray-900 font-medium title-font mb-4">{{ video.title }}</h2>
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="lg:w-1/2 w-full p-4">
+                        <p class="leading-relaxed text-base">No videos available for this course.</p>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
-        </div>
-        <div class="flex flex-wrap -m-4">
-        {% for video in course.videos.all%}
-        <div class="lg:w-1/2 w-full p-4">
-            <img class="rounded w-full object-cover object-center mb-6" src="{{ course.thumbnail.url }}" alt="{{ course.name }}">
-        </div>
-        {% endfor %}
-        <div class="lg:w-1/2 w-full p-4">
-            <h2 class="text-lg text-gray-900 font-medium title-font mb-4">Details</h2>
-            <p class="leading-relaxed text-base">{{ course.description }}</p>
-            <p class="leading-relaxed text-base">{{ course.content }}</p>
-            <p class="leading-relaxed text-base">{{ course.instructor }}</p>
-        </div>
-        </div>
-    </div>
     </section>
-
 {% endblock content %}
