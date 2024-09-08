@@ -79,3 +79,8 @@ The following details how to deploy this application.
 ### Docker
 
 See detailed [cookiecutter-django Docker documentation](http://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html).
+
+### env
+export DATABASE_URL=postgres://postgres:<password>@127.0.0.1:5432/<DB name given to createdb>
+export CELERY_BROKER_URL=redis://localhost:6379/0
+export DJANGO_READ_DOT_ENV_FILE=True
