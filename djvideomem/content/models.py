@@ -81,23 +81,45 @@ def pre_save_video(sender, instance, *args, **kwargs):
         instance.slug = slugify(instance.title)
 
 def post_email_confirmed(request, email_address, *args, **kwargs):
-    user = User.objects.get(email=email_address.email )
-    free_trial_pricing = Pricing.objects.get(name="Free Trial")
-    subscription = Subscription.objects.create(user=user, pricing=free_trial_pricing)
-    stripe_customer = stripe.Customer.create(
-        email=user.email
-    )
-    stripe_subscription = stripe.Subscription.create(
-        customer=stripe_customer["id"],
-        items = [
-            {'price': 'price_1HACxXC5EmFqfM1Pw9BPOeJ1'}
-        ],
-        trial_period_days=7
-    )
-    # print(stripe_subscription)
-    subscription.status = stripe_subscription["status"]
-    subscription.stripe_subscription_id = stripe_subscription["id"]
-    subscription.save()
+    try:
+        # Fetch the user based on the confirmed email address
+        user = User.objects.get(email=email_address.email )
+        # Fetch the pricing plan for the Free Trial
+        free_trial_pricing = Pricing.objects.get(name="Free Trial")
+        # Create a new subscription for the user with the Free Trial pricing
+        subscription = Subscription.objects.create(user=user, pricing=free_trial_pricing)
+        # Create a new customer in Stripe
+        stripe_customer = stripe.Customer.create(
+            email=user.email
+        )
+        # Create a new subscription in Stripe with a trial period of 7 days
+        stripe_subscription = stripe.Subscription.create(
+            customer=stripe_customer["id"],
+            items = [
+                {'price': 'price_1HACxXC5EmFqfM1Pw9BPOeJ1'}
+            ],
+            trial_period_days=7
+        )
+        # print(stripe_subscription)
+        # Update the Subscription object with the Stripe subscription details
+        subscription.status = stripe_subscription["status"]
+        subscription.stripe_subscription_id = stripe_subscription["id"]
+        subscription.save()
+    except User.DoesNotExist:
+        # Handle the case where the user does not exist
+        print(f"User with email {email_address.email} does not exist.")
+
+    except Pricing.DoesNotExist:
+        # Handle the case where the pricing plan does not exist
+        print("Free Trial pricing plan does not exist.")
+
+    except stripe.error.StripeError as e:
+        # Handle any errors from the Stripe API
+        print(f"Stripe error occurred: {e.user_message}")
+
+    except Exception as e:
+        # Handle any other unforeseen errors
+        print(f"An error occurred: {str(e)}")
 
 # post_save.connect(post_save_user, sender=User)
 email_confirmed.connect(post_email_confirmed)
