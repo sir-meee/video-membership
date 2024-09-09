@@ -1,10 +1,15 @@
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.shortcuts import reverse
-from django.utils import timezone
 from django.contrib.auth import get_user_model
+from allauth.account.signals import email_confirmed 
+from allauth.account.models import EmailAddress
+import stripe
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 User = get_user_model()
@@ -32,7 +37,8 @@ class Subscription(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.name.email
+        return f"Subscription for {self.user.email} ({self.pricing.name}) - {self.status} since {self.created_at.strftime('%Y-%m-%d')}"
+
 
 class Course(models.Model):
     name = models.CharField(max_length=200)
@@ -74,11 +80,26 @@ def pre_save_video(sender, instance, *args, **kwargs):
     if not instance.slug:
         instance.slug = slugify(instance.title)
 
-def post_save_user(sender, instance, created, *args, **kwargs):
-    if created:
-        free_trial_pricing = Pricing.objects.get(name="Free Trial")
-        Subscription.objects.create(user=instance)
+def post_email_confirmed(request, email_address, *args, **kwargs):
+    user = User.objects.get(email=email_address.email )
+    free_trial_pricing = Pricing.objects.get(name="Free Trial")
+    subscription = Subscription.objects.create(user=user, pricing=free_trial_pricing)
+    stripe_customer = stripe.Customer.create(
+        email=user.email
+    )
+    stripe_subscription = stripe.Subscription.create(
+        customer=stripe_customer["id"],
+        items = [
+            {'price': 'price_1HACxXC5EmFqfM1Pw9BPOeJ1'}
+        ],
+        trial_period_days=7
+    )
+    # print(stripe_subscription)
+    subscription.status = stripe_subscription["status"]
+    subscription.stripe_subscription_id = stripe_subscription["id"]
+    subscription.save()
 
-pre_save.connect(post_save_user, sender=User)
+# post_save.connect(post_save_user, sender=User)
+email_confirmed.connect(post_email_confirmed)
 pre_save.connect(pre_save_course, sender=Course)
 pre_save.connect(pre_save_video, sender=Video)
