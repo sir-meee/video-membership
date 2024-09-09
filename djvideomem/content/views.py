@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, DetailView
 from django.shortcuts import get_object_or_404
 from .models import Course, Video
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .mixins import CoursePermissionsMixin
 
 
 class HomePageView(TemplateView):
@@ -28,7 +30,7 @@ class CourseDetailView(DetailView):
     queryset = Course.objects.all()
 
 
-class VideoDetailView(DetailView):
+class VideoDetailView(LoginRequiredMixin, CoursePermissionsMixin,DetailView):
     template_name = "content/video_detail.html"
 
     def get_object(self):

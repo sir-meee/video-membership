@@ -41,6 +41,7 @@ class Subscription(models.Model):
 
 
 class Course(models.Model):
+    pricing_tiers = models.ManyToManyField(Pricing)
     name = models.CharField(max_length=200)
     description = models.TextField()
     thumbnail = models.ImageField(upload_to="thumbnails/")
