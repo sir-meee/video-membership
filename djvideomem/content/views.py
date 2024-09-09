@@ -30,13 +30,26 @@ class CourseDetailView(DetailView):
     queryset = Course.objects.all()
 
 
-class VideoDetailView(LoginRequiredMixin, CoursePermissionsMixin,DetailView):
+class VideoDetailView(LoginRequiredMixin,DetailView):
     template_name = "content/video_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        course = self.get_course()
+        subscription = self.request.user.subscription
+        pricing_tier = subscription.pricing
+        context.update({
+            "has_permission":pricing_tier in course.pricing_tiers.all()
+        })
+        return context
+
+    def get_course(self):
+        return get_object_or_404(Course, slug=self.kwargs["slug"])
 
     def get_object(self):
         video = get_object_or_404(Video, slug=self.kwargs["video_slug"])
         return video
 
     def get_queryset(self):
-        course = get_object_or_404(Course, slug=self.kwargs["slug"])
+        course = self.get_course
         return course.videos.all()
